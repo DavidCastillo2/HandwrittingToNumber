@@ -20,12 +20,15 @@ def view_classify(imgTemp, psTempt):
     plt.show()
 
 
-def main(model, valloader, device):
+def main(model, valloader, forceCPU):
+    def isGPU():
+        return torch.cuda.device_count() != 0 and not forceCPU
+
     images, labels = next(iter(valloader))
 
     img = images[0].view(1, 784)
     with torch.no_grad():
-        if torch.cuda.device_count() != 0:
+        if isGPU():
             logps = model(img.cuda())
         else:
             logps = model(img)
@@ -41,7 +44,7 @@ def main(model, valloader, device):
             img = images[i].view(1, 784)
             # Turn off gradients to speed up this part
             with torch.no_grad():
-                if torch.cuda.device_count() != 0:
+                if isGPU():
                     logps = model(img.cuda())
                 else:
                     logps = model(img)
